@@ -1,10 +1,10 @@
 {
-  "name": "mcp-mysql-server",
+  "name": "mcp-mysql-readonly",
   "version": "1.0.0",
   "description": "A MySQL Model Context Protocol (MCP) server that provides secure database access with optional read-only mode for AI assistants",
   "main": "dist/index.js",
   "bin": {
-    "mcp-mysql-server": "dist/index.js"
+    "mcp-mysql-readonly": "dist/index.js"
   },
   "scripts": {
     "build": "cp src/index.js dist/index.js && chmod +x dist/index.js",
@@ -32,12 +32,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/mcp-mysql-server.git"
+    "url": "git+https://github.com/liuwenkai01/mcp-mysql-readonly.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/mcp-mysql-server/issues"
+    "url": "https://github.com/liuwenkai01/mcp-mysql-readonly/issues"
   },
-  "homepage": "https://github.com/yourusername/mcp-mysql-server#readme",
+      "homepage": "https://github.com/liuwenkai01/mcp-mysql-readonly#readme",
   "dependencies": {
     "mysql2": "^3.6.0"
   },
@@ -57,7 +57,7 @@
     "mcpVersion": "2024-11-05",
     "tools": [
       "connect_db",
-      "query", 
+      "query",
       "list_tables",
       "describe_table",
       "execute"
@@ -67,4 +67,4 @@
       "security": "environment-based"
     }
   }
-} 
+}
