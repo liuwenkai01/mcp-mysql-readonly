@@ -1,0 +1,70 @@
+{
+  "name": "mcp-mysql-server",
+  "version": "1.0.0",
+  "description": "A MySQL Model Context Protocol (MCP) server that provides secure database access with optional read-only mode for AI assistants",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-mysql-server": "dist/index.js"
+  },
+  "scripts": {
+    "build": "cp src/index.js dist/index.js && chmod +x dist/index.js",
+    "start": "node dist/index.js",
+    "dev": "node src/index.js",
+    "test": "node test/test-readonly.js",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "mysql",
+    "database",
+    "ai",
+    "assistant",
+    "model-context-protocol",
+    "cursor",
+    "claude",
+    "readonly",
+    "security"
+  ],
+  "author": {
+    "name": "liuwenkai",
+    "email": "lesliewenkaiyan@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mcp-mysql-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/mcp-mysql-server/issues"
+  },
+  "homepage": "https://github.com/yourusername/mcp-mysql-server#readme",
+  "dependencies": {
+    "mysql2": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "mcp": {
+    "mcpVersion": "2024-11-05",
+    "tools": [
+      "connect_db",
+      "query", 
+      "list_tables",
+      "describe_table",
+      "execute"
+    ],
+    "capabilities": {
+      "readOnly": true,
+      "security": "environment-based"
+    }
+  }
+} 
