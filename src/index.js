@@ -4,6 +4,14 @@ const mysql = require('mysql2/promise');
 
 let connection = null;
 const isReadOnly = process.env.MYSQL_READONLY === 'true';
+const logToStderr = process.env.MCP_LOG_TO_STDERR === 'true';
+
+// 日志函数 - 根据 MCP_LOG_TO_STDERR 环境变量决定是否输出日志
+function log(...args) {
+  if (logToStderr) {
+    console.error(...args);
+  }
+}
 
 // 自动连接数据库
 async function autoConnect() {
@@ -15,14 +23,14 @@ async function autoConnect() {
       password: process.env.MYSQL_PASSWORD || '',
       database: process.env.MYSQL_DATABASE || 'test'
     };
-    
-    console.error(`🔌 Connecting to MySQL: ${config.host}:${config.port}/${config.database}`);
-    console.error(`🔒 Read-only mode: ${isReadOnly ? 'ENABLED' : 'DISABLED'}`);
+
+    log(`🔌 Connecting to MySQL: ${config.host}:${config.port}/${config.database}`);
+    log(`🔒 Read-only mode: ${isReadOnly ? 'ENABLED' : 'DISABLED'}`);
     connection = await mysql.createConnection(config);
-    console.error('✅ MySQL connected successfully');
+    log('✅ MySQL connected successfully');
     return true;
   } catch (error) {
-    console.error('❌ MySQL connection failed:', error.message);
+    log('❌ MySQL connection failed:', error.message);
     return false;
   }
 }
@@ -217,22 +225,17 @@ if (!isReadOnly) {
   };
 }
 
-// MCP 协议处理
-process.stdin.setEncoding('utf8');
-process.stdout.setEncoding('utf8');
+// MCP 协议处理 - 使用 readline 逐行处理，立即响应
+const readline = require('readline');
 
-let buffer = '';
+const rl = readline.createInterface({
+  input: process.stdin,
+  terminal: false
+});
 
-process.stdin.on('data', async (chunk) => {
-  buffer += chunk;
-  
-  let lines = buffer.split('\n');
-  buffer = lines.pop() || '';
-  
-  for (const line of lines) {
-    if (line.trim()) {
-      await handleMessage(line.trim());
-    }
+rl.on('line', async (line) => {
+  if (line.trim()) {
+    await handleMessage(line.trim());
   }
 });
 
@@ -253,7 +256,11 @@ async function handleMessage(line) {
           }
         });
         break;
-        
+
+      case 'notifications/initialized':
+        // 客户端确认初始化完成，不需要响应
+        break;
+
       case 'tools/list':
         sendResponse(message.id, {
           tools: Object.entries(tools).map(([name, tool]) => ({
@@ -285,7 +292,7 @@ async function handleMessage(line) {
         sendError(message.id, -32601, `Unknown method: ${message.method}`);
     }
   } catch (error) {
-    console.error('Error handling message:', error);
+    log('Error handling message:', error);
     sendError(null, -32700, 'Parse error');
   }
 }
@@ -296,7 +303,10 @@ function sendResponse(id, result) {
     id,
     result
   };
-  process.stdout.write(JSON.stringify(response) + '\n');
+  const data = JSON.stringify(response) + '\n';
+  process.stdout.write(data, () => {
+    // 确保数据被刷新
+  });
 }
 
 function sendError(id, code, message) {
@@ -305,12 +315,15 @@ function sendError(id, code, message) {
     id,
     error: { code, message }
   };
-  process.stdout.write(JSON.stringify(response) + '\n');
+  const data = JSON.stringify(response) + '\n';
+  process.stdout.write(data, () => {
+    // 确保数据被刷新
+  });
 }
 
 // 启动时自动连接
 autoConnect().then(() => {
-  console.error('🚀 MySQL MCP Server started and ready');
+  log('🚀 MySQL MCP Server started and ready');
 }).catch(() => {
-  console.error('⚠️  MySQL MCP Server started but database connection failed');
+  log('⚠️  MySQL MCP Server started but database connection failed');
 });
